@@ -37,4 +37,3 @@ networks:
   # such that traefix proxy can forward requests
   ingress:
     driver: overlay
-    attachable: true
