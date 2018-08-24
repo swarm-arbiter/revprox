@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  proxy:
+    image: traefik
+    command: |
+      --api
+      --entrypoints='Name:http Address::80'
+      --entrypoints='Name:https Address::443 TLS'
+      --defaultentrypoints=http,https
+      --docker
+      --docker.swarmMode
+      --docker.domain=terry.cloud
+      --docker.watch
+    ports:
+      - '80:80'
+      - '443:443'
+      - '8080:8080'
+    networks:
+      - ingress
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ${SRV_APPDATA}/resources/traefix.toml:/etc/traefik/traefix.toml:rw
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+networks:
+  # network that all web exposed containers should connect to
+  # such that traefix proxy can forward requests
+  ingress:
+    driver: overlay
+    attachable: true
