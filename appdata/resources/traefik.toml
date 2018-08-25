@@ -3,11 +3,14 @@
 defaultEntryPoints = ["http", "https"]
 
 [entrypoints]
-	[entrypoint.http]
-		address=":80"
-		compress=true
-	[entrypoint.https]
-		address=":443"
+
+	[entrypoints.http]
+		address  = ":80"
+		compress = true
+
+	[entrypoints.https]
+		address = ":443"
+		[entrypoints.https.tls]
 ################################################################
 
 
