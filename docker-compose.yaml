@@ -29,7 +29,7 @@ services:
         - "traefik.docker.network=revprox_ingress"
         - "traefik.port=8080"
         - "traefik.backend=traefik"
-        - "traefik.frontend.rule=Host:traefik.terry.cloud"
+        - "traefik.frontend.rule=Host:traefik.${SWARM_NAME}.terry.cloud"
 
 networks:
   # network that all web exposed containers should connect to
