@@ -13,6 +13,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - ${SRV_APPDATA}/resources/traefik.toml:/etc/traefik/traefik.toml:ro
       - ${SRV_APPDATA}/logs/:/var/log/traefik/:rw
+      - ${SRV_APPDATA}/persistent/acme.json:/etc/traefik/acme/acme.json:rw
+    environment:
+      - DO_AUTH_TOKEN=083bc666dd915ad0e0b754f5e32c3b5809cc86fbb26defe1fbc49f6446ae9977
     deploy:
       mode: global
       placement:

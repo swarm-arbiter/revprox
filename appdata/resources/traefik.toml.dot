@@ -2,15 +2,38 @@
 # Entrypoints
 defaultEntryPoints = ["http", "https"]
 
-[entrypoints]
+[entryPoints]
 
-	[entrypoints.http]
-		address  = ":80"
-		compress = true
+	[entryPoints.http]
+		address = ":80"
+		[entryPoints.http.redirect]
+		entryPoint = "https"
 
-	[entrypoints.https]
+	[entryPoints.https]
 		address = ":443"
-		[entrypoints.https.tls]
+		[entryPoints.https.tls]
+################################################################
+
+
+
+################################################################
+# LetsEncrypt config
+[acme]
+email       = "jnterry@ntlworld.com"
+storage     = "/etc/traefik/acme/acme.json"
+entryPoint  = "https"
+acmeLogging = true
+onHostRule = true
+
+{{? it != null && it.environment == 'production' }}
+caServer = "https://acme-v02.api.letsencrypt.org/directory"
+{{??}}
+caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
+{{?}}
+
+	[acme.dnsChallenge]
+		provider         = "digitalocean"
+		delayBeforeCheck = 60
 ################################################################
 
 

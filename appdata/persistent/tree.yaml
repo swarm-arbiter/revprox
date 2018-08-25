@@ -1,0 +1,4 @@
+- acme.json:
+    mode  : '0600'
+    owner : root
+    group : root
