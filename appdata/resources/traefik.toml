@@ -35,17 +35,20 @@ format = "json"
 
 
 ################################################################
-# Docker Swarm Mode Provider
+# Enable Docker Swarm Provider
 [docker]
+
 endpoint = "unix:///var/run/docker.sock"
 
-# Default domain - override by setting the "traefik.domain" label on a services.
+# Default domain - overide by setting the "traefik.domain" label on a service
 domain = "terry.cloud"
 
-# Enable watching of docker changes
+# Watch for changes to services, etc
 watch = true
+
+# Use Docker Swarm Mode as data provider.
 swarmMode = true
 
-# Expose containers with traefix endpoints, unless specified otherwise
+# Expose services unless specified otherwise
 exposedByDefault = true
 ################################################################

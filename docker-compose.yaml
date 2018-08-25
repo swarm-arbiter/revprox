@@ -7,10 +7,6 @@ services:
       --entrypoints='Name:http Address::80'
       --entrypoints='Name:https Address::443 TLS'
       --defaultentrypoints=http,https
-      --docker
-      --docker.swarmMode
-      --docker.domain=terry.cloud
-      --docker.watch
     ports:
       - '80:80'
       - '443:443'
