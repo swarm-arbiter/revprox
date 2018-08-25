@@ -6,7 +6,6 @@ services:
     ports:
       - '80:80'
       - '443:443'
-      - '8080:8080'
     networks:
       - ingress
     volumes:
@@ -26,6 +25,11 @@ services:
         delay: 10s
       restart_policy:
         condition: on-failure
+      labels:
+        - "traefik.docker.network=revprox_ingress"
+        - "traefik.port=8080"
+        - "traefik.backend=traefik"
+        - "traefik.frontend.rule=Host:traefik.terry.cloud"
 
 networks:
   # network that all web exposed containers should connect to
