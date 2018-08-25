@@ -4,7 +4,6 @@ services:
   proxy:
     image: traefik
     command: |
-      --api
       --entrypoints='Name:http Address::80'
       --entrypoints='Name:https Address::443 TLS'
       --defaultentrypoints=http,https
@@ -20,7 +19,8 @@ services:
       - ingress
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
-      - ${SRV_APPDATA}/resources/traefix.toml:/etc/traefik/traefix.toml:rw
+      - ${SRV_APPDATA}/resources/traefik.toml:/etc/traefik/traefik.toml:ro
+      - ${SRV_APPDATA}/logs/:/var/log/traefik/:rw
     deploy:
       mode: global
       placement:

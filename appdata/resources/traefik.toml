@@ -1,0 +1,51 @@
+################################################################
+# Entrypoints
+defaultEntryPoints = ["http", "https"]
+
+[entrypoints]
+	[entrypoint.http]
+		address=":80"
+		compress=true
+	[entrypoint.https]
+		address=":443"
+################################################################
+
+
+
+################################################################
+# Logging
+logLevel="INFO"
+
+[traefikLog]
+filePath = "/var/log/traefik/traefik.log"
+format = "json"
+
+[accessLog]
+filePath = "/var/log/traefik/access.log"
+format = "json"
+################################################################
+
+
+
+################################################################
+# enable web gui
+[api]
+################################################################
+
+
+
+################################################################
+# Docker Swarm Mode Provider
+[docker]
+endpoint = "unix:///var/run/docker.sock"
+
+# Default domain - override by setting the "traefik.domain" label on a services.
+domain = "terry.cloud"
+
+# Enable watching of docker changes
+watch = true
+swarmMode = true
+
+# Expose containers with traefix endpoints, unless specified otherwise
+exposedByDefault = true
+################################################################
