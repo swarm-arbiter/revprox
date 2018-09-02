@@ -14,7 +14,7 @@ services:
       - ${SRV_APPDATA}/logs/:/var/log/traefik/:rw
       - ${SRV_APPDATA}/persistent/acme.json:/etc/traefik/acme/acme.json:rw
     environment:
-      - DO_AUTH_TOKEN=083bc666dd915ad0e0b754f5e32c3b5809cc86fbb26defe1fbc49f6446ae9977
+      - "DO_AUTH_TOKEN={{= secrets.do_auth_token }}"
     deploy:
       mode: global
       placement:
@@ -28,8 +28,8 @@ services:
       labels:
         - "traefik.docker.network=revprox_ingress"
         - "traefik.port=8080"
-        - "traefik.backend=traefik"
-        - "traefik.frontend.rule=Host:traefik.${SWARM_NAME}.terry.cloud"
+        - "traefik.backend={{= hosts.traefix_gui.domain }}"
+        - "traefik.frontend.rule=Host:{{= hosts.traefix_gui.domain }}"
 
 networks:
   # network that all web exposed containers should connect to

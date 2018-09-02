@@ -25,7 +25,7 @@ entryPoint  = "https"
 acmeLogging = true
 onHostRule = true
 
-{{? it != null && it.environment == 'production' }}
+{{? swarm != null && swarm.environment == 'production' }}
 caServer = "https://acme-v02.api.letsencrypt.org/directory"
 {{??}}
 caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
