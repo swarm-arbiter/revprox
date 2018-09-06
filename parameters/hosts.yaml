@@ -1,3 +1,4 @@
 hosts:
   traefix_gui:
     domain: traefix.swarm-name.terry.cloud
+    htpasswd: 'jt:$apr1$c1ThCiY8$Es6dm/poqDjmV6nuoOZz5/'
