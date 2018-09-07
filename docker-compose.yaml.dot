@@ -10,9 +10,9 @@ services:
       - ingress
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
-      - ${STACK_DATA_DIR}/resources/traefik.toml:/etc/traefik/traefik.toml:ro
-      - ${STACK_DATA_DIR}/logs/:/var/log/traefik/:rw
-      - ${STACK_DATA_DIR}/persistent/acme.json:/etc/traefik/acme/acme.json:rw
+      - {{= stack.data_dir }}/resources/traefik.toml:/etc/traefik/traefik.toml:ro
+      - {{= stack.data_dir }}/logs/:/var/log/traefik/:rw
+      - {{= stack.data_dir }}/persistent/acme.json:/etc/traefik/acme/acme.json:rw
     environment:
       - "DO_AUTH_TOKEN={{= secrets.do_auth_token }}"
     deploy:
