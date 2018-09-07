@@ -28,9 +28,9 @@ services:
       labels:
         - "traefik.docker.network=revprox_ingress"
         - "traefik.port=8080"
-        - "traefik.backend={{= hosts.traefix_gui.domain }}"
-        - "traefik.frontend.rule=Host:{{= hosts.traefix_gui.domain }}"
-        - "traefik.frontend.auth.basic={{= hosts.traefix_gui.htpasswd }}"
+        - "traefik.backend={{= hosts.traefik_gui.domain }}"
+        - "traefik.frontend.rule=Host:{{= hosts.traefik_gui.domain }}"
+        - "traefik.frontend.auth.basic={{= hosts.traefik_gui.htpasswd }}"
 networks:
   # network that all web exposed containers should connect to
   # such that traefix proxy can forward requests
