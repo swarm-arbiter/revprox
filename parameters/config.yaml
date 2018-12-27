@@ -1,0 +1,9 @@
+config:
+  # Default domain used for exposed services
+  default_domain : example.com
+
+  # Email used for letsencrypt certificates
+  acme_email     : bob@example.com
+
+  # Domain at which the traefik GUI can be accessed
+  frontend_domain: traefik.example.com

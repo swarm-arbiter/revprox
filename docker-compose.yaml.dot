@@ -2,7 +2,7 @@ version: '3'
 
 services:
   proxy:
-    image: traefik
+    image: traefik:1.7.6-alpine
     ports:
       - '80:80'
       - '443:443'
@@ -11,6 +11,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - {{= stack.data_dir }}/resources/traefik.toml:/etc/traefik/traefik.toml:ro
+      - {{= stack.data_dir }}/resources/frontend-passwd:/etc/traefik/frontend-passwd:ro
       - {{= stack.data_dir }}/logs/:/var/log/traefik/:rw
       - {{= stack.data_dir }}/persistent/acme.json:/etc/traefik/acme/acme.json:rw
     environment:
@@ -28,9 +29,10 @@ services:
       labels:
         - "traefik.docker.network=revprox_ingress"
         - "traefik.port=8080"
-        - "traefik.backend={{= hosts.traefix_gui.domain }}"
-        - "traefik.frontend.rule=Host:{{= hosts.traefix_gui.domain }}"
-        - "traefik.frontend.auth.basic={{= hosts.traefix_gui.htpasswd }}"
+        - "traefik.backend={{= config.frontend_domain }}"
+        - "traefik.frontend.rule=Host:{{= config.frontend_domain }}"
+        - "traefik.frontend.auth.basic.usersFile=/etc/traefik/frontend-passwd"
+
 networks:
   # network that all web exposed containers should connect to
   # such that traefix proxy can forward requests
