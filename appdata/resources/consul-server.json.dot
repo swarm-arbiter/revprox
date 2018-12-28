@@ -1,0 +1,31 @@
+{
+	"addresses" : {
+		"https" : "0.0.0.0"
+	},
+	"client_addr": "{{= String.fromCharCode(123,123) + ' GetInterfaceIP \\\"eth0\\\" ' + String.fromCharCode(125,125) }}",
+	"bind_addr": "{{= String.fromCharCode(123,123) + ' GetInterfaceIP \\\"eth0\\\" ' + String.fromCharCode(125,125) }}",
+	"check_update_interval": "1m",
+  "data_dir": "/data/consul",
+  "datacenter": "swarm",
+  "disable_host_node_id" : true,
+  "disable_remote_exec": true,
+  "disable_update_check": true,
+  "http_config": {
+    "response_headers": {
+      "Access-Control-Allow-Origin": "*"
+    }
+  },
+  "leave_on_terminate" : true,
+  "retry_interval" : "10s",
+  "retry_join" : [ "consul" ],
+  "server_name" : "server.docker-swarm.consul",
+  "skip_leave_on_interrupt" : true,
+  "node_meta": {
+    "instance_type": "Docker container"
+  },
+  "ports" : {
+    "https" : 8700
+  },
+  "server" : true,
+  "ui" : true
+}

@@ -1,12 +1,36 @@
-version: '3'
+version: '3.2'
 
 services:
+  consul:
+    image: consul:1.4.0
+    volumes:
+      - {{= stack.data_dir}}/resources/consul-server.json:/consul/config/server.json:ro
+    command: agent -ui -server -bootstrap-expect={{= swarm.manager_count }}
+    networks:
+      - consul
+    deploy:
+      mode: global
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == manager
+
+
   proxy:
     image: traefik:1.7.6-alpine
     ports:
-      - '80:80'
-      - '443:443'
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
     networks:
+      - consul
       - ingress
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
@@ -16,8 +40,10 @@ services:
       - {{= stack.data_dir }}/persistent/acme.json:/etc/traefik/acme/acme.json:rw
     environment:
       - "DO_AUTH_TOKEN={{= secrets.do_auth_token }}"
+    depends_on: [ 'consul' ]
     deploy:
-      mode: global
+      #mode: global
+      replicas: 1
       placement:
         constraints:
           - node.role == manager
@@ -37,4 +63,9 @@ networks:
   # network that all web exposed containers should connect to
   # such that traefix proxy can forward requests
   ingress:
+    driver: overlay
+
+  # network that all applications requiring consul access should
+  # connect to
+  consul:
     driver: overlay
