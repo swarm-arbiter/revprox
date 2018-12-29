@@ -3,23 +3,34 @@ version: '3.2'
 services:
   consul:
     image: consul:1.4.0
+    hostname: "\{{ .Node.Hostname \}}-consul"
     volumes:
       - {{= stack.data_dir}}/resources/consul-server.json:/consul/config/server.json:ro
-    command: agent -ui -server -bootstrap-expect={{= swarm.manager_count }}
+      - {{= stack.data_dir }}/resources/frontend-passwd:/etc/traefik/frontend-passwd:ro
+    command: agent -ui -server
     networks:
-      - consul
+      consul:
+        aliases:
+          - consul.cluster
+      ingress:
     deploy:
-      mode: global
       endpoint_mode: dnsrr
+      mode: global
       restart_policy:
         condition: on-failure
       placement:
         constraints:
           - node.role == manager
-
+      labels:
+        - "traefik.docker.network=revprox_consul"
+        - "traefik.port=8500"
+        - "traefik.backend={{= config.consul_domain }}"
+        - "traefik.frontend.rule=Host:{{= config.consul_domain }}"
+        - "traefik.frontend.auth.basic.usersFile=/etc/traefik/frontend-passwd"
 
   proxy:
     image: traefik:1.7.6-alpine
+    hostname: "\{{ .Node.Hostname \}}-revprox"
     ports:
       - target: 80
         published: 80
@@ -37,13 +48,11 @@ services:
       - {{= stack.data_dir }}/resources/traefik.toml:/etc/traefik/traefik.toml:ro
       - {{= stack.data_dir }}/resources/frontend-passwd:/etc/traefik/frontend-passwd:ro
       - {{= stack.data_dir }}/logs/:/var/log/traefik/:rw
-      - {{= stack.data_dir }}/persistent/acme.json:/etc/traefik/acme/acme.json:rw
     environment:
       - "DO_AUTH_TOKEN={{= secrets.do_auth_token }}"
-    depends_on: [ 'consul' ]
+    depends_on: [ 'consul', 'traefik-init' ]
     deploy:
-      #mode: global
-      replicas: 1
+      mode: global
       placement:
         constraints:
           - node.role == manager
@@ -67,5 +76,12 @@ networks:
 
   # network that all applications requiring consul access should
   # connect to
+  # :TODO: Use bridge so that containers can only talk to others on the same node
+  # This ensures a container using consul will always use the one on the same
+  # host for minumum latency (consul containers can still talk to each other
+  # via internal network)
   consul:
     driver: overlay
+
+  #internal:
+  #  driver: overlay

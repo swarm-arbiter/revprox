@@ -7,3 +7,6 @@ config:
 
   # Domain at which the traefik GUI can be accessed
   frontend_domain: traefik.example.com
+
+  # Domain at which the consul GUI/API can be accessed
+  consul_domain: consul.example.com

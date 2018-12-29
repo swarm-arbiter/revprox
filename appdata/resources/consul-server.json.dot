@@ -16,8 +16,9 @@
     }
   },
   "leave_on_terminate" : true,
-  "retry_interval" : "10s",
-  "retry_join" : [ "consul" ],
+  "retry_interval" : "3s",
+  "retry_join" : [ "consul.cluster" ],
+	"bootstrap_expect" : {{= swarm.manager_count }},
   "server_name" : "server.docker-swarm.consul",
   "skip_leave_on_interrupt" : true,
   "node_meta": {
