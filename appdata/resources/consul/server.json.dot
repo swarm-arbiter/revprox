@@ -2,8 +2,8 @@
 	"addresses" : {
 		"https" : "0.0.0.0"
 	},
-	"client_addr": "{{= String.fromCharCode(123,123) + ' GetInterfaceIP \\\"eth0\\\" ' + String.fromCharCode(125,125) }}",
-	"bind_addr": "{{= String.fromCharCode(123,123) + ' GetInterfaceIP \\\"eth0\\\" ' + String.fromCharCode(125,125) }}",
+	"bind_addr": "\{{ GetInterfaceIP \"eth0\" \}}",
+	"client_addr": "\{{ GetInterfaceIP \"eth0\" \}}",
 	"check_update_interval": "1m",
   "data_dir": "/data/consul",
   "datacenter": "swarm",
@@ -17,7 +17,7 @@
   },
   "leave_on_terminate" : true,
   "retry_interval" : "3s",
-  "retry_join" : [ "consul.cluster" ],
+  "retry_join" : [ "consul" ],
 	"bootstrap_expect" : {{= swarm.manager_count }},
   "server_name" : "server.docker-swarm.consul",
   "skip_leave_on_interrupt" : true,
@@ -28,5 +28,5 @@
     "https" : 8700
   },
   "server" : true,
-  "ui" : true
+	"ui" : true,
 }

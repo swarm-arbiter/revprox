@@ -5,14 +5,12 @@ services:
     image: consul:1.4.0
     hostname: "\{{ .Node.Hostname \}}-consul"
     volumes:
-      - {{= stack.data_dir}}/resources/consul-server.json:/consul/config/server.json:ro
+      - {{= stack.data_dir}}/resources/consul.:/consul/config/:ro
       - {{= stack.data_dir }}/resources/frontend-passwd:/etc/traefik/frontend-passwd:ro
     command: agent -ui -server
     networks:
-      consul:
-        aliases:
-          - consul.cluster
-      ingress:
+      - consul
+      - ingress
     deploy:
       endpoint_mode: dnsrr
       mode: global
@@ -76,12 +74,5 @@ networks:
 
   # network that all applications requiring consul access should
   # connect to
-  # :TODO: Use bridge so that containers can only talk to others on the same node
-  # This ensures a container using consul will always use the one on the same
-  # host for minumum latency (consul containers can still talk to each other
-  # via internal network)
   consul:
     driver: overlay
-
-  #internal:
-  #  driver: overlay
