@@ -1,21 +1,53 @@
-version: '3'
+version: '3.2'
 
 services:
+  consul:
+    image: consul:1.4.0
+    hostname: "\{{ .Node.Hostname \}}-consul"
+    volumes:
+      - {{= stack.data_dir}}/resources/consul:/consul/config/:rw
+    command: agent -ui -server
+    networks:
+      - consul
+      - ingress
+    deploy:
+      endpoint_mode: dnsrr
+      mode: global
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.docker.network=revprox_consul"
+        - "traefik.port=8500"
+        - "traefik.backend={{= config.consul_domain }}"
+        - "traefik.frontend.rule=Host:{{= config.consul_domain }}"
+        - "traefik.frontend.auth.basic.usersFile=/etc/traefik/frontend-passwd"
+
   proxy:
     image: traefik:1.7.6-alpine
+    hostname: "\{{ .Node.Hostname \}}-revprox"
     ports:
-      - '80:80'
-      - '443:443'
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
     networks:
+      - consul
       - ingress
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - {{= stack.data_dir }}/resources/traefik.toml:/etc/traefik/traefik.toml:ro
       - {{= stack.data_dir }}/resources/frontend-passwd:/etc/traefik/frontend-passwd:ro
       - {{= stack.data_dir }}/logs/:/var/log/traefik/:rw
-      - {{= stack.data_dir }}/persistent/acme.json:/etc/traefik/acme/acme.json:rw
     environment:
       - "DO_AUTH_TOKEN={{= secrets.do_auth_token }}"
+    depends_on: [ 'consul', 'traefik-init' ]
     deploy:
       mode: global
       placement:
@@ -37,4 +69,9 @@ networks:
   # network that all web exposed containers should connect to
   # such that traefix proxy can forward requests
   ingress:
+    driver: overlay
+
+  # network that all applications requiring consul access should
+  # connect to
+  consul:
     driver: overlay

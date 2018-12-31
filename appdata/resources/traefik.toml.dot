@@ -17,10 +17,18 @@ defaultEntryPoints = ["http", "https"]
 
 
 ################################################################
+# Consul Connection
+[consul]
+endpoint="consul:8500"
+prefix="traefik"
+################################################################
+
+
+################################################################
 # LetsEncrypt config
 [acme]
 email       = "{{= config.acme_email }}"
-storage     = "/etc/traefik/acme/acme.json"
+storage     = "traefik/acme/account" # stored in consul
 entryPoint  = "https"
 acmeLogging = true
 onHostRule = true
@@ -43,8 +51,7 @@ caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
 logLevel="INFO"
 
 [traefikLog]
-filePath = "/var/log/traefik/traefik.log"
-format = "json"
+# Defaults to text on stdout - good for our purposes
 
 [accessLog]
 filePath = "/var/log/traefik/access.log"
@@ -74,7 +81,11 @@ watch = true
 
 # Use Docker Swarm Mode as data provider.
 swarmMode = true
+swarmModeRefreshSeconds = 5
 
 # Expose services unless specified otherwise
 exposedByDefault = true
+
+# Use revprox_ingress unless overriden by 'traefik.docker.network=xxx' label
+network = "revprox_ingress"
 ################################################################
