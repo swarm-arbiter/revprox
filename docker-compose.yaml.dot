@@ -5,8 +5,7 @@ services:
     image: consul:1.4.0
     hostname: "\{{ .Node.Hostname \}}-consul"
     volumes:
-      - {{= stack.data_dir}}/resources/consul.:/consul/config/:ro
-      - {{= stack.data_dir }}/resources/frontend-passwd:/etc/traefik/frontend-passwd:ro
+      - {{= stack.data_dir}}/resources/consul:/consul/config/:rw
     command: agent -ui -server
     networks:
       - consul

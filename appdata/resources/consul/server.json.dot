@@ -28,5 +28,5 @@
     "https" : 8700
   },
   "server" : true,
-	"ui" : true,
+	"ui" : true
 }
