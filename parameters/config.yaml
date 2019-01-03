@@ -10,3 +10,9 @@ config:
 
   # Domain at which the consul GUI/API can be accessed
   consul_domain: consul.example.com
+
+  # Whether consul agent should also be exposed to the docker host running
+  # the container. Setting to true will be a security vulnerability if the
+  # host is publically exposed and no further actions are taken, for example
+  # setting up IP tables to block access from WAN
+  expose_to_host: false

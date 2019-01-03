@@ -1,15 +1,26 @@
-version: '3.2'
+version: '3.3'
 
 services:
   consul:
     image: consul:1.4.0
     hostname: "\{{ .Node.Hostname \}}-consul"
     volumes:
-      - {{= stack.data_dir}}/resources/consul:/consul/config/:rw
-    command: agent -ui -server
+      # per-node volume to store consul persistance data
+      - /consul/data
+    command: agent -ui -server -bootstrap-expect {{= swarm.manager_count }}
     networks:
       - consul
       - ingress
+    {{? config.expose_to_host }}
+    ports:
+      - target: 8500
+        published: 8500
+        protocol: tcp
+        mode: host
+    {{?}}
+    configs:
+      - source: consul_config_json
+        target: /consul/config/server.json
     deploy:
       endpoint_mode: dnsrr
       mode: global
@@ -64,6 +75,10 @@ services:
         - "traefik.backend={{= config.frontend_domain }}"
         - "traefik.frontend.rule=Host:{{= config.frontend_domain }}"
         - "traefik.frontend.auth.basic.usersFile=/etc/traefik/frontend-passwd"
+
+configs:
+  consul_config_json:
+    file: files/consul_server.json
 
 networks:
   # network that all web exposed containers should connect to
