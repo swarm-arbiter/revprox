@@ -3,7 +3,6 @@
 defaultEntryPoints = ["http", "https"]
 
 [entryPoints]
-
 	[entryPoints.http]
 		address = ":80"
 		[entryPoints.http.redirect]
@@ -12,6 +11,12 @@ defaultEntryPoints = ["http", "https"]
 	[entryPoints.https]
 		address = ":443"
 		[entryPoints.https.tls]
+
+{{? config.expose_prometheus_metrics }}
+	[entryPoints.metrics]
+		address = ":9100"
+{{?}}
+
 ################################################################
 
 
@@ -22,6 +27,16 @@ defaultEntryPoints = ["http", "https"]
 endpoint="consul:8500"
 prefix="traefik"
 ################################################################
+
+
+{{? config.expose_prometheus_metrics == true }}
+################################################################
+# Prometheus Metrics
+[metrics]
+	[metrics.prometheus]
+		entryPoint = "metrics"
+################################################################
+{{?}}
 
 
 ################################################################

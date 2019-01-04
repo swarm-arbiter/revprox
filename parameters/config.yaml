@@ -16,3 +16,7 @@ config:
   # host is publically exposed and no further actions are taken, for example
   # setting up IP tables to block access from WAN
   expose_to_host: false
+
+  # If true then prometheus metrics will be exposed by each traefik container
+  # on port 9100
+  expose_prometheus_metrics: false
