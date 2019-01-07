@@ -21,9 +21,14 @@ services:
     configs:
       - source: consul_config_json
         target: /consul/config/server.json
+    environment:
+      - "SERVICE_TAGS=host-\{{ .Node.Hostname \}},instance-traefik-\{{ .Node.Hostname \}}"
     deploy:
       endpoint_mode: dnsrr
       mode: global
+      update_config:
+        parallelism: 1
+        delay: 30s
       restart_policy:
         condition: any
       placement:
@@ -36,6 +41,24 @@ services:
         - "traefik.frontend.rule=Host:{{= config.consul_domain }}"
         - "traefik.frontend.auth.basic.usersFile=/etc/traefik/frontend-passwd"
 
+  # Automatically register containers as services with cosnul
+  registrator:
+    image: gliderlabs/registrator:master
+    hostname: "\{{ .Node.Hostname \}}-registrator"
+    command:
+      - '-internal=true'
+      - '-cleanup=true'
+      - '-resync=300'
+      - '-ttl=60'
+      - '-ttl-refresh=45'
+      - 'consul://consul:8500'
+    networks:
+      - consul
+    volumes:
+      - '/var/run/docker.sock:/tmp/docker.sock'
+    deploy:
+      mode: global
+
   proxy:
     image: traefik:1.7.6-alpine
     hostname: "\{{ .Node.Hostname \}}-revprox"
@@ -43,11 +66,12 @@ services:
       - target: 80
         published: 80
         protocol: tcp
-        mode: host
       - target: 443
         published: 443
         protocol: tcp
-        mode: host
+      - target: 9100 # mark as exposed for registrator
+        published: 9100
+        protocol: tcp
     networks:
       - consul
       - ingress
@@ -58,13 +82,10 @@ services:
       - {{= stack.data_dir }}/logs/:/var/log/traefik/:rw
     environment:
       - "DO_AUTH_TOKEN={{= secrets.do_auth_token }}"
+      - "SERVICE_TAGS=host-\{{ .Node.Hostname \}},instance-traefik-\{{ .Node.Hostname \}}"
     depends_on: [ 'consul', 'traefik-init' ]
     deploy:
-      endpoint_mode: dnsrr
       mode: global
-      placement:
-        constraints:
-          - node.role == manager
       update_config:
         parallelism: 1
         delay: 10s
