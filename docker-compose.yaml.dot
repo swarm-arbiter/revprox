@@ -6,7 +6,7 @@ services:
     hostname: "\{{ .Node.Hostname \}}-consul"
     volumes:
       # per-node volume to store consul persistance data
-      - /consul/data
+      - consul_data:/consul/data:rw
     command: agent -ui -server -bootstrap-expect {{= swarm.manager_count }}
     networks:
       - consul
@@ -91,3 +91,9 @@ networks:
   # connect to
   consul:
     driver: overlay
+
+# Persist consul_data even if container is restarted, but do so
+# on a per host basis (this is local volume) since each replica has
+# is own data
+volumes:
+  consul_data:
