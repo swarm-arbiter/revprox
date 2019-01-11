@@ -68,9 +68,9 @@ logLevel="INFO"
 [traefikLog]
 # Defaults to text on stdout - good for our purposes
 
-[accessLog]
-filePath = "/var/log/traefik/access.log"
-format = "json"
+#[accessLog]
+#filePath = "/var/log/traefik/access.log"
+#format = "json"
 ################################################################
 
 
@@ -86,7 +86,7 @@ format = "json"
 # Enable Docker Swarm Provider
 [docker]
 
-endpoint = "unix:///var/run/docker.sock"
+endpoint = "tcp://socat:2375"
 
 # Default domain - overide by setting the "traefik.domain" label on a service
 domain = "{{= config.default_domain }}"

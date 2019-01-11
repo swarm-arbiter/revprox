@@ -59,6 +59,30 @@ services:
     deploy:
       mode: global
 
+  # :TODO: remove this and use consul service registration instead
+  #
+  # We need traefik to be able to run on workers to get good scalability, however
+  # traefik needs access to a docker manager socket to get service list
+  # If "registrator" reliably removed old containers we could just use consul
+  # as the source. Instead, we will expose the docker manager socket over tcp to
+  # the worker nodes using socat
+  # (see: https://blog.mikesir87.io/2018/07/letting-traefik-run-on-worker-nodes/)
+  #
+  # Eventually proably want to replace registrator with custom python script, doesn't
+  # look too hard to implement...
+  socat:
+    image: alpine/socat
+    command: tcp-listen:2375,fork,reuseaddr unix-connect:/var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+    networks:
+      - internal
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+
   proxy:
     image: traefik:1.7.6-alpine
     hostname: "\{{ .Node.Hostname \}}-revprox"
@@ -75,15 +99,15 @@ services:
     networks:
       - consul
       - ingress
+      - internal
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:rw
       - {{= stack.data_dir }}/resources/traefik.toml:/etc/traefik/traefik.toml:ro
       - {{= stack.data_dir }}/resources/frontend-passwd:/etc/traefik/frontend-passwd:ro
-      - {{= stack.data_dir }}/logs/:/var/log/traefik/:rw
+      # - {{= stack.data_dir }}/logs/:/var/log/traefik/:rw
     environment:
       - "DO_AUTH_TOKEN={{= secrets.do_auth_token }}"
       - "SERVICE_TAGS=host-\{{ .Node.Hostname \}},instance-traefik-\{{ .Node.Hostname \}}"
-    depends_on: [ 'consul', 'traefik-init' ]
+    depends_on: [ 'consul', 'traefik-init', 'socat' ]
     deploy:
       mode: global
       update_config:
@@ -111,6 +135,9 @@ networks:
   # network that all applications requiring consul access should
   # connect to
   consul:
+    driver: overlay
+
+  internal:
     driver: overlay
 
 # Persist consul_data even if container is restarted, but do so
